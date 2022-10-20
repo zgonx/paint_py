@@ -1,4 +1,5 @@
 from utils import *
+from utils.InputBox import InputBox
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Drawing Program")
@@ -40,13 +41,13 @@ def draw(win, grid, buttons):
 
     pygame.display.update()
 
-def draw_line(x_y_list):
+def draw_line(x_y_list,color):
     x1 = x_y_list[0][0]
     x2 = x_y_list[1][0]
     y1 = x_y_list[0][1]
     y2 = x_y_list[1][1]
     print (x1,x2,y1,y2)
-    drawing_color = BLUE
+    drawing_color = color
     if x1==x2 and y1==y2:
         grid[x1][y1] = drawing_color
     else:
@@ -84,8 +85,10 @@ clock = pygame.time.Clock()
 grid = init_grid(ROWS, COLS, BG_COLOR)
 drawing_color = BLACK
 last_2_pos = []
+done = False
+save_txt = ''
 
-button_y = HEIGHT - TOOLBAR_HEIGHT/2 - 25
+button_y = HEIGHT - TOOLBAR_HEIGHT/2 - 75
 buttons = [
     Button(10, button_y, 50, 50, BLACK),
     Button(70, button_y, 50, 50, RED),
@@ -93,12 +96,18 @@ buttons = [
     Button(190, button_y, 50, 50, BLUE),
     Button(250, button_y, 50, 50, WHITE, "Erase", BLACK),
     Button(310, button_y, 50, 50, WHITE, "Clear", BLACK),
-    Button(380, button_y, 50, 50, WHITE, "Line", BLACK)
+    Button(370, button_y, 50, 50, WHITE, "Line", BLACK),
+    Button(430, button_y, 50, 50, WHITE, "Save", BLACK),
+]
+
+boxes = [
+    InputBox(10,button_y+100,140,32),
+    # InputBox(250,button_y+100,140,32)
 ]
 
 while run:
     clock.tick(FPS)
-
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -118,15 +127,41 @@ while run:
                     if not button.clicked(pos):
                         continue
 
-                    drawing_color = button.color
+                    
                     if button.text == "Clear":
                         grid = init_grid(ROWS, COLS, BG_COLOR)
                         drawing_color = BLACK
                     if button.text == "Line":
                         if len(last_2_pos)==2:
-                            draw_line(last_2_pos)
+                            draw_line(last_2_pos,drawing_color)
                         else:
                             continue
+                    drawing_color = button.color
+                    if button.text == "Save":
+                        boxes[0].draw(WIN)
+                        while not done:
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    done = True
+                                if event.type == pygame.KEYDOWN:
+                                    if event.key == pygame.K_s:
+                                        if pygame.key.get_mods() & pygame.KMOD_CTRL:
+                                            done = True
+                                for box in boxes:
+                                    box.handle_event(event)
+
+                            for box in boxes:
+                                box.update()
+
+                            # WIN.fill((30, 30, 30))
+                            for box in boxes:
+                                save_txt = box.text
+                                box.draw(WIN)
+                                
+                            pygame.display.flip()
+                        done = False
+                        print(save_txt+".jpeg")
+                        pygame.image.save(WIN, save_txt+".jpeg")
 
     draw(WIN, grid, buttons)
 
