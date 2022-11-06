@@ -41,30 +41,31 @@ def draw(win, grid, buttons):
 
     pygame.display.update()
 
-def draw_line(x_y_list,color):
+
+def draw_line(x_y_list, color):
     x1 = x_y_list[0][0]
     x2 = x_y_list[1][0]
     y1 = x_y_list[0][1]
     y2 = x_y_list[1][1]
-    print (x1,x2,y1,y2)
+    print(x1, x2, y1, y2)
     drawing_color = color
-    if x1==x2 and y1==y2:
+    if x1 == x2 and y1 == y2:
         grid[x1][y1] = drawing_color
     else:
-        if abs(x2-x1)>abs(y2-y1):
+        if abs(x2-x1) > abs(y2-y1):
             a = (y2-y1)/(x2-x1)
-            if x1>x2:
-                x1,x2 = x2,x1
-                y1,y2 = y2,y1
-            for x in range(x1,x2):
+            if x1 > x2:
+                x1, x2 = x2, x1
+                y1, y2 = y2, y1
+            for x in range(x1, x2):
                 y = round(y1+a*(x-x1))
                 grid[x][y] = drawing_color
         else:
-            a=(x2-x1)/(y2-y1)
-            if y1>y2:
-                x1,x2 = x2,x1
-                y1,y2 = y2,y1
-            for y in range(y1,y2):
+            a = (x2-x1)/(y2-y1)
+            if y1 > y2:
+                x1, x2 = x2, x1
+                y1, y2 = y2, y1
+            for y in range(y1, y2):
                 x = round(x1+a*(y-y1))
                 grid[x][y] = drawing_color
 
@@ -101,39 +102,37 @@ buttons = [
 ]
 
 boxes = [
-    InputBox(10,button_y+100,140,32),
+    InputBox(10, button_y+100, 140, 32),
     # InputBox(250,button_y+100,140,32)
 ]
 
 while run:
     clock.tick(FPS)
-    
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
         if pygame.mouse.get_pressed()[0]:
             pos = pygame.mouse.get_pos()
-            
+
             try:
                 row, col = get_row_col_from_pos(pos)
-                if len(last_2_pos)>1:
+                if len(last_2_pos) > 1:
                     last_2_pos = last_2_pos[:0]
                 last_2_pos.append(get_row_col_from_pos(pos))
-                print(last_2_pos) 
                 grid[row][col] = drawing_color
             except IndexError:
                 for button in buttons:
                     if not button.clicked(pos):
                         continue
 
-                    
                     if button.text == "Clear":
                         grid = init_grid(ROWS, COLS, BG_COLOR)
                         drawing_color = BLACK
                     if button.text == "Line":
-                        if len(last_2_pos)==2:
-                            draw_line(last_2_pos,drawing_color)
+                        if len(last_2_pos) == 2:
+                            draw_line(last_2_pos, drawing_color)
                         else:
                             continue
                     drawing_color = button.color
@@ -153,11 +152,10 @@ while run:
                             for box in boxes:
                                 box.update()
 
-                            # WIN.fill((30, 30, 30))
                             for box in boxes:
                                 save_txt = box.text
                                 box.draw(WIN)
-                                
+
                             pygame.display.flip()
                         done = False
                         print(save_txt+".jpeg")
